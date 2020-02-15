@@ -90,6 +90,15 @@ class Artist(db.Model):
 
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+class Show(db.Model):
+    __tablename__ = "show"
+    id = db.Column(db.Integer, primary_key=True)
+    venue_id = db.Column(db.Integer)
+    venue_name = db.Column(db.String(100))
+    artist_id = db.Column(db.Integer)
+    artist_name = db.Column(db.String(50))
+    artist_image_link = db.Column(db.String(500))
+    start_time = db.Column(db.String(100))
 
 #----------------------------------------------------------------------------#
 # Filters.
