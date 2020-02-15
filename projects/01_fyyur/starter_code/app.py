@@ -47,6 +47,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(500))
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
+    genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
