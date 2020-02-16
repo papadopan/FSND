@@ -69,6 +69,12 @@ class Artist(db.Model):
     upcoming_shows_count = db.Column(db.Integer())
     genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
 
+    def getArtist(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
+
     def __repr__(self):
         return f"id: {self.id}, name: {self.name}, city: {self.city}, state: {self.state}, genres: {self.genres}, image_link: {self.image_link}, facebook: {self.facebook_link}, website: {self.website}, venue: {self.seeking_venue}, description: {self.seeking_description}, past: {self.past_shows_count}, upcoming: {self.upcoming_shows_count}"
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -280,6 +286,8 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
     # TODO: replace with real data returned from querying the database
+    fetched_data = [d.getArtist() for d in Artist.query.all()]
+
     data = [{
         "id": 4,
         "name": "Guns N Petals",
@@ -290,7 +298,7 @@ def artists():
         "id": 6,
         "name": "The Wild Sax Band",
     }]
-    return render_template('pages/artists.html', artists=data)
+    return render_template('pages/artists.html', artists=fetched_data)
 
 
 @app.route('/artists/search', methods=['POST'])
