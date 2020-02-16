@@ -311,10 +311,19 @@ def show_artist(artist_id):
     # shows the venue page with the given venue_id
     # TODO: replace with real venue data from the venues table, using venue_id
 
-    # data = list(filter(lambda d: d['id'] ==
-    #                    artist_id, Artist.query.all()))
-
     artist = Artist.query.get(artist_id)
+
+    myList = []
+    keyword = ""
+    for d in artist.genres[1:]:
+        if d == ',' or d == '}':
+            myList.append(keyword)
+            keyword = ""
+        else:
+            keyword += d
+
+    artist.genres = myList
+
     if artist is None:
         return render_template("errors/404.html"), 404
 
@@ -414,6 +423,7 @@ def create_artist_submission():
 
     try:
         art = Artist(**request.form)
+        art.genres = request.form.getlist("genres")
         db.session.add(art)
         db.session.commit()
         # on successful db insert, flash success
