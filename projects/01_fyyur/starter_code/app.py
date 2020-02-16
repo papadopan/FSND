@@ -285,19 +285,8 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-    # TODO: replace with real data returned from querying the database
-    fetched_data = [d.getArtist() for d in Artist.query.all()]
+    fetched_data = [data.getArtist() for data in Artist.query.all()]
 
-    data = [{
-        "id": 4,
-        "name": "Guns N Petals",
-    }, {
-        "id": 5,
-        "name": "Matt Quevedo",
-    }, {
-        "id": 6,
-        "name": "The Wild Sax Band",
-    }]
     return render_template('pages/artists.html', artists=fetched_data)
 
 
@@ -389,6 +378,10 @@ def show_artist(artist_id):
     }
     # data = list(filter(lambda d: d['id'] ==
     #                    artist_id, Artist.query.all()))
+
+    artist = Artist.query.get(artist_id)
+    if artist is None:
+        return render_template("errors/404.html")
 
     # return render_template('pages/show_artist.html', artist=data)
     return render_template('pages/show_artist.html', artist=Artist.query.get(artist_id))
