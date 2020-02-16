@@ -71,7 +71,6 @@ class Artist(db.Model):
 
     def __repr__(self):
         return f"id: {self.id}, name: {self.name}, city: {self.city}, state: {self.state}, genres: {self.genres}, image_link: {self.image_link}, facebook: {self.facebook_link}, website: {self.website}, venue: {self.seeking_venue}, description: {self.seeking_description}, past: {self.past_shows_count}, upcoming: {self.upcoming_shows_count}"
-
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
@@ -380,11 +379,11 @@ def show_artist(artist_id):
         "past_shows_count": 0,
         "upcoming_shows_count": 3,
     }
-    data = list(filter(lambda d: d['id'] ==
-                       artist_id, [data1, data2, data3]))[0]
+    # data = list(filter(lambda d: d['id'] ==
+    #                    artist_id, Artist.query.all()))
 
-    return render_template('pages/show_artist.html', artist=data)
-    # return render_template('pages/show_artist.html', artist=Artist.query.get(1))
+    # return render_template('pages/show_artist.html', artist=data)
+    return render_template('pages/show_artist.html', artist=Artist.query.get(artist_id))
 
 #  Update
 #  ----------------------------------------------------------------
@@ -404,6 +403,7 @@ def edit_artist(artist_id):
         "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
         "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
     }
+
     # TODO: populate form with fields from artist with ID <artist_id>
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
