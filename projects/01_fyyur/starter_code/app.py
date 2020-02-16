@@ -60,7 +60,6 @@ class Artist(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website = db.Column(db.String(120))
@@ -69,6 +68,9 @@ class Artist(db.Model):
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
     genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
+
+    def __repr__(self):
+        return f"id: {self.id}, name: {self.name}, city: {self.city}, state: {self.state}, genres: {self.genres}, image_link: {self.image_link}, facebook: {self.facebook_link}, website: {self.website}, venue: {self.seeking_venue}, description: {self.seeking_description}, past: {self.past_shows_count}, upcoming: {self.upcoming_shows_count}"
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
