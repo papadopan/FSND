@@ -67,7 +67,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
-    genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
+    genres = db.Column(db.ARRAY(db.String(500)), nullable=False)
 
     def getArtist(self):
         return {
@@ -245,9 +245,11 @@ def show_venue(venue_id):
         "past_shows_count": 1,
         "upcoming_shows_count": 1,
     }
-    data = list(filter(lambda d: d['id'] ==
-                       venue_id, [data1, data2, data3]))[0]
-    return render_template('pages/show_venue.html', venue=data)
+    # data = list(filter(lambda d: d['id'] ==
+    #                    venue_id, [data1, data2, data3]))[0]
+
+    venue = Venue.query.get(1)
+    return render_template('pages/show_venue.html', venue=venue)
 
 #  Create Venue
 #  ----------------------------------------------------------------
@@ -263,6 +265,18 @@ def create_venue_form():
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
+
+    try:
+        venue = Venue(**request.form)
+        venue.genres = request.form.getlist("genres")
+        db.session.add(venue)
+        db.session.commit()
+    except:
+        flash('An error occured. Venue ' +
+              request.form['name'] + ' could not be listed!')
+        return render_template("errors/500.html"), 500
+    finally:
+        db.session.close()
 
     # on successful db insert, flash success
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
