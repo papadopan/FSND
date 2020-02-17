@@ -48,6 +48,7 @@ class Venue(db.Model):
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
     genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
+    artists = db.relationship('Artist', backref='venue', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -68,6 +69,7 @@ class Artist(db.Model):
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
     genres = db.Column(db.ARRAY(db.String(500)), nullable=False)
+    shows = db.relationship('Show', backref="artist", lazy=True)
 
     def getArtist(self):
         return {
@@ -89,7 +91,8 @@ class Show(db.Model):
     artist_id = db.Column(db.Integer)
     artist_name = db.Column(db.String(50))
     artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.String(100))
+    start_time = db.Column(db.DateTime, nullable=False)
+
 
 #----------------------------------------------------------------------------#
 # Filters.
