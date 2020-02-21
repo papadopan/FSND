@@ -30,16 +30,25 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
-Show = db.Table(
-    "Show",
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('artistId', db.Integer, db.ForeignKey(
-        "Artist.id"), primary_key=True),
-    db.Column('venueId', db.Integer, db.ForeignKey(
-        "Venue.id"), primary_key=True),
+# Show = db.Table(
+#     "Show",
+#     db.Column('artist_id', db.Integer, db.ForeignKey(
+#         "Artist.id")),
+#     db.Column('venue_id', db.Integer, db.ForeignKey(
+#         "Venue.id")),
 
-    db.Column("start_time", db.DateTime())
-)
+#     db.Column("start_time", db.DateTime())
+# )
+
+
+class Show(db.Model):
+
+    __tablename__ = "Show"
+
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"))
+    venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"))
+    start_time = db.Column(db.DateTime())
 
 
 class Venue(db.Model):
@@ -177,17 +186,6 @@ def show_venue(venue_id):
     if venue is None:
         return render_template("errors/404.html"), 404
 
-    myList = []
-    keyword = ""
-    for d in venue.genres[1:]:
-        if d == ',' or d == '}':
-            myList.append(keyword)
-            keyword = ""
-        else:
-            keyword += d
-
-    venue.genres = myList
-
     return render_template('pages/show_venue.html', venue=venue), 200
 
 #  Create Venue
@@ -265,17 +263,6 @@ def show_artist(artist_id):
     # TODO: replace with real venue data from the venues table, using venue_id
 
     artist = Artist.query.get(artist_id)
-
-    myList = []
-    keyword = ""
-    for d in artist.genres[1:]:
-        if d == ',' or d == '}':
-            myList.append(keyword)
-            keyword = ""
-        else:
-            keyword += d
-
-    artist.genres = myList
 
     if artist is None:
         return render_template("errors/404.html"), 404
@@ -470,9 +457,27 @@ def create_shows():
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
     # TODO: insert form data as a new Show record in the db, instead
+    artist_id = request.form["artist_id"]
+    venue_id = request.form["venue_id"]
+    # start_time = request.form["start_time"]
 
-    # on successful db insert, flash success
+    venue = Venue.query.get(venue_id)
+    artist = Artist.query.get(artist_id)
+
+    if venue and artist:
+        try:
+            venue.artists = [artist]
+            artist.venues = [venue]
+            db.session.commit()
+        except:
+            flash('Show was not listed, please try again!')
+            db.session.rollback()
+            render_template("errors/500.html"), 500
+    else:
+        return render_template("errors/404.html"), 404
+
     flash('Show was successfully listed!')
+    # on successful db insert, flash success
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Show could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
