@@ -40,6 +40,8 @@ class Show(db.Model):
     venueId = db.Column(db.Integer, db.ForeignKey(
         "Venue.id"), primary_key=True)
 
+    start_time = db.Column(db.DateTime(), nullable=False)
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
