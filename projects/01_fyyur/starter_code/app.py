@@ -30,25 +30,26 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
-# Show = db.Table(
-#     "Show",
-#     db.Column('artist_id', db.Integer, db.ForeignKey(
-#         "Artist.id")),
-#     db.Column('venue_id', db.Integer, db.ForeignKey(
-#         "Venue.id")),
+Show = db.Table(
+    "Show",
+    db.Column('artist_id', db.Integer, db.ForeignKey(
+        "Artist.id"), primary_key=True),
+    db.Column('venue_id', db.Integer, db.ForeignKey(
+        "Venue.id"), primary_key=True),
 
-#     db.Column("start_time", db.DateTime())
-# )
+    db.Column("start_time", db.DateTime(), nullable=False)
+)
 
 
-class Show(db.Model):
+# class Show(db.Model):
+#     __tablename__ = "Show"
 
-    __tablename__ = "Show"
-
-    id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"))
-    venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"))
-    start_time = db.Column(db.DateTime())
+#     id = db.Column(db.Integer, primary_key=True)
+#     artist_id = db.Column(
+#         db.Integer, db.ForeignKey("Artist.id"), nullable=False)
+#     venue_id = db.Column(
+#         db.Integer, db.ForeignKey("Venue.id"), nullable=False)
+#     start_time = db.Column(db.DateTime())
 
 
 class Venue(db.Model):
@@ -246,13 +247,13 @@ def search_artists():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
     # search for "band" should return "The Wild Sax Band".
+
+    artists = Artist.query.filter(
+        Artist.name.ilike("%"+request.form.get('search_term')+"%")).all()
+
     response = {
-        "count": 1,
-        "data": [{
-            "id": 4,
-            "name": "Guns N Petals",
-            "num_upcoming_shows": 0,
-        }]
+        "count": len(artists),
+        "data": artists
     }
     return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -443,6 +444,7 @@ def shows():
         "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
         "start_time": "2035-04-15T20:00:00.000Z"
     }]
+
     return render_template('pages/shows.html', shows=data)
 
 
@@ -459,7 +461,7 @@ def create_show_submission():
     # TODO: insert form data as a new Show record in the db, instead
     artist_id = request.form["artist_id"]
     venue_id = request.form["venue_id"]
-    # start_time = request.form["start_time"]
+    start_time = request.form["start_time"]
 
     venue = Venue.query.get(venue_id)
     artist = Artist.query.get(artist_id)
@@ -468,6 +470,7 @@ def create_show_submission():
         try:
             venue.artists = [artist]
             artist.venues = [venue]
+
             db.session.commit()
         except:
             flash('Show was not listed, please try again!')
