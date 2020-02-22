@@ -9,6 +9,10 @@
 		<p class="subtitle">
 			ID: {{ venue.id }}
 		</p>
+		<form class="form" method="delete" action="/venues/2">
+			<input type="reset" value="Delete Venue" class="btn btn-danger btn-lg btn-block mt-10">
+		</form>
+
 		<div class="genres">
 			{% for genre in venue.genres %}
 			<span class="genre">{{ genre }}</span>
@@ -51,7 +55,7 @@
 <section>
 	<h2 class="monospace">{{ venue.upcoming_shows_count }} Upcoming
 		{% if venue.upcoming_shows_count == 1 %}Show{% else %}Shows{% endif %}</h2>
-	<!-- <div class="row">
+	<div class="row">
 		{%for show in venue.upcoming_shows %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
@@ -61,7 +65,7 @@
 			</div>
 		</div>
 		{% endfor %}
-	</div> -->
+	</div>
 </section>
 <section>
 	<h2 class="monospace">{{ venue.past_shows_count }} Past
@@ -78,5 +82,7 @@
 		{% endfor %}
 	</div>
 </section>
+
+
 
 {% endblock %}
