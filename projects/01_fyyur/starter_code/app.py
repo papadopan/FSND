@@ -30,26 +30,26 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
-Show = db.Table(
-    "Show",
-    db.Column('artist_id', db.Integer, db.ForeignKey(
-        "Artist.id"), primary_key=True),
-    db.Column('venue_id', db.Integer, db.ForeignKey(
-        "Venue.id"), primary_key=True),
+# Show = db.Table(
+#     "Show",
+#     db.Column('artist_id', db.Integer, db.ForeignKey(
+#         "Artist.id"), primary_key=True),
+#     db.Column('venue_id', db.Integer, db.ForeignKey(
+#         "Venue.id"), primary_key=True),
 
-    db.Column("start_time", db.DateTime(), nullable=True)
-)
+#     db.Column("start_time", db.DateTime(), nullable=True)
+# )
 
 
-# class Show(db.Model):
-#     __tablename__ = "Show"
+class Show(db.Model):
+    __tablename__ = "Show"
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     artist_id = db.Column(
-#         db.Integer, db.ForeignKey("Artist.id"), nullable=False)
-#     venue_id = db.Column(
-#         db.Integer, db.ForeignKey("Venue.id"), nullable=False)
-#     start_time = db.Column(db.DateTime())
+    artist_id = db.Column(
+        db.Integer, db.ForeignKey("Artist.id"), primary_key=True)
+    venue_id = db.Column(
+        db.Integer, db.ForeignKey("Venue.id"), primary_key=True)
+    start_time = db.Column(db.DateTime())
+    artist = db.relationship("Artist")
 
 
 class Venue(db.Model):
@@ -69,8 +69,7 @@ class Venue(db.Model):
     past_shows_count = db.Column(db.Integer())
     upcoming_shows_count = db.Column(db.Integer())
     genres = db.Column(db.ARRAY(db.String(50)), nullable=False)
-    artists = db.relationship('Artist', secondary=Show,
-                              backref="venues", lazy=True)
+    artists = db.relationship('Show')
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -481,7 +480,10 @@ def create_show_submission():
 
     if venue and artist:
         try:
-            venue.artists = [artist]
+            show = Show(start_time=start_time)
+            show.artist = artist
+            venue.artists.append(show)
+            db.session.add(show)
             db.session.commit()
         except:
             flash('Show was not listed, please try again!')
