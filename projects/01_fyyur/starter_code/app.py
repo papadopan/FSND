@@ -37,7 +37,7 @@ Show = db.Table(
     db.Column('venue_id', db.Integer, db.ForeignKey(
         "Venue.id"), primary_key=True),
 
-    db.Column("start_time", db.DateTime(), nullable=False)
+    db.Column("start_time", db.DateTime(), nullable=True)
 )
 
 
@@ -482,8 +482,6 @@ def create_show_submission():
     if venue and artist:
         try:
             venue.artists = [artist]
-            artist.venues = [venue]
-
             db.session.commit()
         except:
             flash('Show was not listed, please try again!')
