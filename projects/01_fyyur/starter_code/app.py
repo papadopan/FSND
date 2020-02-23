@@ -30,16 +30,6 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 
-# Show = db.Table(
-#     "Show",
-#     db.Column('artist_id', db.Integer, db.ForeignKey(
-#         "Artist.id"), primary_key=True),
-#     db.Column('venue_id', db.Integer, db.ForeignKey(
-#         "Venue.id"), primary_key=True),
-
-#     db.Column("start_time", db.DateTime(), nullable=True)
-# )
-
 
 class Show(db.Model):
     __tablename__ = "Show"
@@ -50,6 +40,16 @@ class Show(db.Model):
         db.Integer, db.ForeignKey("Venue.id"), primary_key=True)
     start_time = db.Column(db.DateTime())
     artist = db.relationship("Artist")
+
+    def getShowsInfo(self):
+        return {
+            "artist_id": self.artist_id,
+            "artist_name": Artist.query.get(self.artist_id).name,
+            "venue_id": self.venue_id,
+            "venue_name": Venue.query.get(self.venue_id).name,
+            "artist_image_link": Artist.query.get(self.artist_id).image_link,
+            "start_time": str(self.start_time)
+        }
 
 
 class Venue(db.Model):
@@ -96,9 +96,6 @@ class Artist(db.Model):
             "id": self.id,
             "name": self.name
         }
-
-    def __repr__(self):
-        return f"id: {self.id}, name: {self.name}, city: {self.city}, state: {self.state}, genres: {self.genres}, image_link: {self.image_link}, facebook: {self.facebook_link}, website: {self.website}, venue: {self.seeking_venue}, description: {self.seeking_description}, past: {self.past_shows_count}, upcoming: {self.upcoming_shows_count}"
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
@@ -115,7 +112,7 @@ def format_datetime(value, format='medium'):
         format = "EEEE MMMM, d, y 'at' h:mma"
     elif format == 'medium':
         format = "EE MM, dd, y h:mma"
-    return babel.dates.format_datetime(date, format)
+    return babel.dates.format_datetime(date, format, locale="en")
 
 
 app.jinja_env.filters['datetime'] = format_datetime
@@ -457,7 +454,11 @@ def shows():
         "start_time": "2035-04-15T20:00:00.000Z"
     }]
 
-    return render_template('pages/shows.html', shows=data)
+    listof = [d.getShowsInfo() for d in Show.query.all()]
+
+    print(listof)
+
+    return render_template('pages/shows.html', shows=listof)
 
 
 @app.route('/shows/create')
