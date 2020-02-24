@@ -97,6 +97,10 @@ class Artist(db.Model):
             "id": self.id,
             "name": self.name
         }
+
+    def __str__(self):
+        return f"Name: {self.name}, Genres: {self.genres}"
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
@@ -269,6 +273,23 @@ def show_artist(artist_id):
 
     if artist is None:
         return render_template("errors/404.html"), 404
+
+    past_shows = db.session.query(Show.artist_id, func.count(Show.artist_id))\
+        .filter_by(artist_id=artist_id)\
+        .filter(Show.start_time < datetime.now())\
+        .group_by(Show.artist_id)\
+        .first()
+
+    upcoming_shows = db.session.query(Show.artist_id, func.count(Show.artist_id))\
+        .filter_by(artist_id=artist_id)\
+        .filter(Show.start_time > datetime.now())\
+        .group_by(Show.artist_id)\
+        .first()
+
+    if past_shows:
+        artist.past_shows_count = past_shows[1]
+    if upcoming_shows:
+        artist.upcoming_shows_count = upcoming_shows[1]
 
     # return render_template('pages/show_artist.html', artist=data)
     return render_template('pages/show_artist.html', artist=Artist.query.get(artist_id)), 200
