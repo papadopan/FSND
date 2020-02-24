@@ -180,6 +180,24 @@ def show_venue(venue_id):
     if venue is None:
         return render_template("errors/404.html"), 404
 
+    past_shows = db.session.query(Show.venue_id, func.count(Show.venue_id))\
+        .filter_by(venue_id=venue_id)\
+        .filter(Show.start_time < datetime.now())\
+        .group_by(Show.venue_id)\
+        .first()
+
+    upcoming_shows = db.session.query(Show.venue_id, func.count(Show.venue_id))\
+        .filter_by(venue_id=venue_id)\
+        .filter(Show.start_time > datetime.now())\
+        .group_by(Show.venue_id)\
+        .first()
+
+    if past_shows:
+        venue.past_shows_count = past_shows[1]
+
+    if upcoming_shows:
+        venue.upcoming_shows_count = upcoming_shows[1]
+
     return render_template('pages/show_venue.html', venue=venue), 200
 
 #  Create Venue
@@ -274,22 +292,18 @@ def show_artist(artist_id):
     if artist is None:
         return render_template("errors/404.html"), 404
 
-    past_shows = db.session.query(Show.artist_id, func.count(Show.artist_id))\
-        .filter_by(artist_id=artist_id)\
-        .filter(Show.start_time < datetime.now())\
-        .group_by(Show.artist_id)\
-        .first()
+    past_shows = db.session.query(Show.artist_id, Show.venue_id).filter(
+        Show.start_time < datetime.now()).filter_by(artist_id=artist_id).all()
 
-    upcoming_shows = db.session.query(Show.artist_id, func.count(Show.artist_id))\
-        .filter_by(artist_id=artist_id)\
-        .filter(Show.start_time > datetime.now())\
-        .group_by(Show.artist_id)\
-        .first()
+    upcoming_shows = db.session.query(Show.artist_id, Show.venue_id).filter(
+        Show.start_time > datetime.now()).filter_by(artist_id=artist_id).all()
 
     if past_shows:
-        artist.past_shows_count = past_shows[1]
+        artist.past_shows_count = len(past_shows)
+        artist.past_shows = past_shows
     if upcoming_shows:
-        artist.upcoming_shows_count = upcoming_shows[1]
+        artist.upcoming_shows_count = len(upcoming_shows)
+        artist.upcoming_shows = upcoming_shows
 
     # return render_template('pages/show_artist.html', artist=data)
     return render_template('pages/show_artist.html', artist=Artist.query.get(artist_id)), 200
