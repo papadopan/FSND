@@ -44,6 +44,9 @@ def return_drinks():
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route("/drinks-detail")
+def return_drinks_detail():
+    return "Drinks Detail"
 
 
 '''
