@@ -32,7 +32,33 @@ class AuthError(Exception):
     return the token part of the header
 '''
 def get_token_auth_header():
-   raise Exception('Not Implemented')
+   auth = request.headers.get("Authorization", None)
+   if auth is None: 
+       raise AuthError({
+            'code': 401,
+            'description': 'Authorization header is expected.'
+    }, 401)
+
+    parts = auth.split(" ")
+    if parts[0].lower() != "bearer":
+        raise AuthError({
+            'code': 401,
+            'description': 'Authorization header is invalid'
+        }, 401)
+    elif len(parts) == 1:
+        raise AuthError({
+            'code': 401,
+            'description': 'Token was not found'
+            }, 401)
+    elif len(parts) > 2:
+        raise AuthError({
+            'code': 401,
+            'description': 'Authorization token must be a Bearer token'
+        }, 401)
+    
+    
+    token = part[1]
+    return token
 
 '''
 @TODO implement check_permissions(permission, payload) method
