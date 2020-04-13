@@ -114,6 +114,7 @@ export class DrinksService {
         if (res.success) {
           console.log(res.drinks)
           this.drinksToItems(res.drinks);
+          this.getDrinks()
         }
       });
     } else { // insert
@@ -122,9 +123,12 @@ export class DrinksService {
         if (res.success) {
           console.log(res.drinks)
           this.drinksToItems(res.drinks);
+          this.getDrinks()
         }
       });
     }
+
+    
 
   }
 
