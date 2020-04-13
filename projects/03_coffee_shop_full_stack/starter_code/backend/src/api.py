@@ -39,11 +39,16 @@ def after_request(response):
 '''
 @app.route("/drinks")
 def return_drinks():
-    drinks = [drink.short() for drink in Drink.query.all()]
-    return jsonify({
-        "success": True,
-        "drinks": drinks
-    }), 200
+    try:
+        drinks = [drink.short() for drink in Drink.query.all()]
+        return jsonify({
+            "success": True,
+            "drinks": drinks
+        }), 200
+    except :
+        abort(400)
+
+
 
 
 '''
@@ -57,11 +62,14 @@ def return_drinks():
 @app.route("/drinks-detail")
 @requires_auth("get:drinks-details")
 def return_drinks_detail(permission):
-    drinks = [drink.long() for drink in Drink.query.all()]
-    return jsonify({
-        "success": True,
-        "drinks": drinks
-    }), 200
+    try:
+        drinks = [drink.long() for drink in Drink.query.all()]
+        return jsonify({
+            "success": True,
+            "drinks": drinks
+        }), 200
+    except:
+        abort(400)
 
 
 '''
@@ -78,13 +86,16 @@ def return_drinks_detail(permission):
 def create_drink(permission):
     data = request.get_json()
 
-    drink = Drink(title=data["title"], recipe=json.dumps(data.get('recipe')))
-    drink.insert()
+    try:
+        drink = Drink(title=data["title"], recipe=json.dumps(data.get('recipe')))
+        drink.insert()
 
-    return jsonify({
-        "drinks": drink.long(),
-        'success': True
-    }), 201
+        return jsonify({
+            "drinks": drink.long(),
+            'success': True
+        }), 201
+    except: 
+        abort(400)
 
 '''
 @TODO implement endpoint
@@ -130,13 +141,16 @@ def delete_drink(permission,id):
     drink = Drink.query.filter(Drink.id == id).first()
     if drink is None:
         abort(404)
-    
-    drink.delete()
 
-    return jsonify({
-        "success":True,
-        "deleted_id": id
-    })
+    try:
+        drink.delete()
+
+        return jsonify({
+            "success":True,
+            "deleted_id": id
+        }), 200
+    except:
+        abort(400)
 
 
 ## Error Handling
@@ -150,6 +164,15 @@ def unprocessable(error):
                     "error": 422,
                     "message": "unprocessable"
                     }), 422
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({
+                    "success": False, 
+                    "error": 400,
+                    "message": "Bad Request"
+                    }), 400
 
 '''
 @TODO implement error handlers using the @app.errorhandler(error) decorator
