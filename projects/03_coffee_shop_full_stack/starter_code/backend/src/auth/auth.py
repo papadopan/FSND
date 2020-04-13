@@ -6,7 +6,7 @@ from urllib.request import urlopen
 
 
 # update the values with my current account
-AUTH0_DOMAIN = 'udacity-coffee.eu.auth0.com'
+AUTH0_DOMAIN = 'dev-t0uvp9wb.eu.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'udacitycoffee'
 

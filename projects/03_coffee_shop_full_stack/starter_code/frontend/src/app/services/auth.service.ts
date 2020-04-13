@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
 
@@ -18,7 +19,7 @@ export class AuthService {
   token: string;
   payload: any;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   build_login_link(callbackPath = '') {
     let link = 'https://';
@@ -28,6 +29,7 @@ export class AuthService {
     link += 'response_type=token&';
     link += 'client_id=' + this.clientId + '&';
     link += 'redirect_uri=' + this.callbackURL + callbackPath;
+
     return link;
   }
 
@@ -72,6 +74,7 @@ export class AuthService {
     this.token = '';
     this.payload = null;
     this.set_jwt();
+    this.http.get("https://dev-t0uvp9wb.eu.auth0.com/v2/logout")
   }
 
   can(permission: string) {

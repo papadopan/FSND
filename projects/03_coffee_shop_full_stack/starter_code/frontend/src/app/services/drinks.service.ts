@@ -91,7 +91,7 @@ export class DrinksService {
   }
 
   getDrinks() {
-    if (this.auth.can('get:drinks-detail')) {
+    if (this.auth.can('get:drinks-details')) {
       this.http.get(this.url + '/drinks-detail', this.getHeaders())
       .subscribe((res: any) => {
         this.drinksToItems(res.drinks);
@@ -112,6 +112,7 @@ export class DrinksService {
       this.http.patch(this.url + '/drinks/' + drink.id, drink, this.getHeaders())
       .subscribe( (res: any) => {
         if (res.success) {
+          console.log(res.drinks)
           this.drinksToItems(res.drinks);
         }
       });
@@ -119,6 +120,7 @@ export class DrinksService {
       this.http.post(this.url + '/drinks', drink, this.getHeaders())
       .subscribe( (res: any) => {
         if (res.success) {
+          console.log(res.drinks)
           this.drinksToItems(res.drinks);
         }
       });

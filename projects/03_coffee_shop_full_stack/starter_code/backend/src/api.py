@@ -24,6 +24,7 @@ CORS(app)
 def after_request(response):
     response.headers.add("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE")
     response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+    
 
     return response
 
@@ -55,7 +56,7 @@ def return_drinks():
 '''
 @app.route("/drinks-detail")
 @requires_auth("get:drinks-details")
-def return_drinks_detail(payload):
+def return_drinks_detail(permission):
     drinks = [drink.long() for drink in Drink.query.all()]
     return jsonify({
         "success": True,
@@ -73,14 +74,15 @@ def return_drinks_detail(payload):
         or appropriate status code indicating reason for failure
 '''
 @app.route("/drinks", methods=["POST"])
-@requires_auth("get:drinks-details")
+@requires_auth("post:drinks")
 def create_drink(permission):
     data = request.get_json()
-    drink = Drink(title=data["title"], recipe=json.dumps(data["recipe"]))
+
+    drink = Drink(title=data["title"], recipe=json.dumps(data.get('recipe')))
     drink.insert()
 
     return jsonify({
-        "drink": drink.long(),
+        "drinks": drink.long(),
         'success': True
     }), 201
 
@@ -96,18 +98,20 @@ def create_drink(permission):
         or appropriate status code indicating reason for failure
 '''
 @app.route("/drinks/<id>", methods=["PATCH"])
-def update_drinks(id):
+@requires_auth("patch:drinks")
+def update_drinks(permission, id):
     drink = Drink.query.filter(Drink.id == id).first()
     if drink is None:
         abort(404)
     
     data = request.get_json()
     drink.title=data["title"]
+    drink.recipe = json.dumps(data.get('recipe'))
     drink.update()
 
     return jsonify({
         "success":True,
-        "drink": drink.long()
+        "drinks": drink.long()
         }), 200
 
 '''
@@ -122,7 +126,7 @@ def update_drinks(id):
 '''
 @app.route('/drinks/<id>', methods=["DELETE"])
 @requires_auth("delete:drinks")
-def delete_drink(id):
+def delete_drink(permission,id):
     drink = Drink.query.filter(Drink.id == id).first()
     if drink is None:
         abort(404)
@@ -178,17 +182,18 @@ def permission_not_found(error):
                     "error": 403,
                     "message": "Unauthorised access"
                     }), 403
-
-@app.errorhandler(401)
-def permission_not(error):
-    return jsonify({
-                    "success": False,
-                    "error": 401,
-                    "message": "Unauthorised access"
-                    }), 401
                     
-
+                    
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
 '''
+@app.errorhandler(AuthError)
+def catch_err(error):
+    print(error.error)
+    return jsonify({
+                    "success": False,
+                    "error": error.status_code,
+                    "code": error.error['code'],
+                    "message": error.error["description"],
+                    }), error.status_code
