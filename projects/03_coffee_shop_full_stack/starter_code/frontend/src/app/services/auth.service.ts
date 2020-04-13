@@ -21,6 +21,16 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+
+  build_logout_link(){
+    let link = "https://"
+    link += this.url + '.auth0.com/v2/logout';
+    link += "?client_id="
+    link += this.clientId
+    
+    return link
+  }
+
   build_login_link(callbackPath = '') {
     let link = 'https://';
     link += this.url + '.auth0.com';
@@ -74,7 +84,6 @@ export class AuthService {
     this.token = '';
     this.payload = null;
     this.set_jwt();
-    this.http.get("https://dev-t0uvp9wb.eu.auth0.com/v2/logout")
   }
 
   can(permission: string) {
